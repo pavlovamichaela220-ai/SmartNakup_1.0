@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SmartNákup AI | Ušetřete na každém nákupu</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+:root {
+    --bg-main: #060913;
+    --accent-purple: #8b5cf6;
+    --accent-blue: #3b82f6;
+    --accent-green: #10b981;
+    --glass-bg: rgba(255, 255, 255, 0.03);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --glass-hover: rgba(255, 255, 255, 0.06);
+    --text-muted: #94a3b8;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Plus Jakarta Sans", sans-serif;
+    color: #f8fafc;
+    min-height: 100vh;
+    background-color: var(--bg-main);
+    background-image: 
+        radial-gradient(circle at 80% 10%, rgba(139, 92, 246, 0.15) 0%, transparent 40%),
+        radial-gradient(circle at 10% 90%, rgba(59, 130, 246, 0.15) 0%, transparent 40%);
+    background-attachment: fixed;
+}
+
+/* Navigace */
+header {
+    width: min(1300px, 92%);
+    margin: 0 auto;
+    padding: 24px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.logo {
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    background: linear-gradient(135deg, #fff 30%, var(--accent-purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.logo-tag {
+    font-size: 10px;
+    background: rgba(139, 92, 246, 0.2);
+    border: 1px solid rgba(139, 92, 246, 0.4);
+    color: #c084fc;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-weight: 700;
+    text-transform: uppercase;
+    -webkit-text-fill-color: initial;
+}
+
+.container {
+    width: min(1300px, 92%);
+    margin: auto;
+    padding: 40px 0 80px;
+}
+
+/* Glassmorphism základy */
+.glass {
+    background: var(--glass-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+/* Hero sekce */
+.hero {
+    display: grid;
+    grid-template-columns: 1fr 440px;
+    align-items: center;
+    gap: 50px;
+    margin-bottom: 40px;
+}
+
+.badge-wrapper {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: 100px;
+    font-size: 13px;
+    color: #cbd5e1;
+    margin-bottom: 20px;
+}
+
+.badge-dot {
+    width: 8px;
+    height: 8px;
+    background: var(--accent-green);
+    border-radius: 50%;
+    box-shadow: 0 0 10px var(--accent-green);
+}
+
+.hero h1 {
+    font-size: 56px;
+    line-height: 1.1;
+    font-weight: 800;
+    letter-spacing: -1.5px;
+    background: linear-gradient(135deg, #ffffff 40%, #cbd5e1 70%, #93c5fd 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.hero p {
+    margin-top: 18px;
+    color: var(--text-muted);
+    font-size: 18px;
+    line-height: 1.6;
+}
+
+.hero-stats {
+    display: flex;
+    gap: 30px;
+    margin-top: 28px;
+}
+
+.stat-item h4 {
+    font-size: 24px;
+    font-weight: 800;
+    color: #fff;
+}
+
+.stat-item p {
+    font-size: 13px;
+    margin-top: 2px;
+}
+
+.basket-preview {
+    height: 260px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(59, 130, 246, 0.05));
+}
+
+.basket-preview span {
+    font-size: 90px;
+    animation: float 4s infinite ease-in-out;
+    filter: drop-shadow(0 20px 30px rgba(0,0,0,0.5));
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-12px) rotate(3deg); }
+}
+
+/* Hlavní Grid layout */
+.grid {
+    display: grid;
+    grid-template-columns: 1fr 440px;
+    gap: 30px;
+}
+
+.card {
+    padding: 30px;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.card-title {
+    font-size: 20px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Vyhledávání */
+.search-wrapper {
+    position: relative;
+    margin-bottom: 24px;
+}
+
+.search-box {
+    width: 100%;
+    padding: 16px 18px 16px 46px;
+    border: 1px solid var(--glass-border);
+    border-radius: 14px;
+    background: rgba(15, 23, 42, 0.6);
+    color: white;
+    font-size: 15px;
+    font-family: inherit;
+    transition: all 0.2s ease;
+}
+
+.search-box:focus {
+    outline: none;
+    border-color: var(--accent-purple);
+    box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.15);
+}
+
+.search-icon {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0.4;
+}
+
+/* Kategorie a Tlačítka Produktů */
+.section-title {
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--accent-purple);
+    font-weight: 700;
+    margin: 24px 0 12px 0;
+}
+
+.section-title:first-child {
+    margin-top: 0;
+}
+
+.products {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 10px;
+}
+
+.product-btn {
+    border: 1px solid var(--glass-border);
+    cursor: pointer;
+    color: #e2e8f0;
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.02);
+    font-size: 14px;
+    font-weight: 500;
+    font-family: inherit;
+    text-align: left;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.product-btn:hover {
+    background: rgba(255, 255, 255, 0.07);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2deg);
+}
+
+.product-btn.active {
+    background: rgba(139, 92, 246, 0.2);
+    border-color: var(--accent-purple);
+    color: #fff;
+}
+
+/* Nákupní seznam */
+.shopping-list {
+    list-style: none;
+    margin-bottom: 24px;
+    max-height: 320px;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+.shopping-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.shopping-list::-webkit-scrollbar-thumb {
+    background: var(--glass-border);
+    border-radius: 10px;
+}
+
+.shopping-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    padding: 12px 16px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4deg); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.remove-btn {
+    border: none;
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    font-weight: bold;
+}
+
+.remove-btn:hover {
+    background: #ef4444;
+    color: white;
+}
+
+/* Akční CTA tlačítko */
+.search-btn {
+    width: 100%;
+    padding: 18px;
+    border: none;
+    border-radius: 14px;
+    color: white;
+    font-size: 16px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    background: linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%);
+    box-shadow: 0 10px 25px -5px rgba(139, 92, 246, 0.5);
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.search-btn:hover {
+    opacity: 0.95;
+    transform: translateY(-2deg);
+    box-shadow: 0 15px 30px -5px rgba(139, 92, 246, 0.6);
+}
+
+.search-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Výsledky srovnání */
+.results-wrapper {
+    margin-top: 10px;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-muted);
+    font-size: 14px;
+}
+
+.result-card {
+    padding: 16px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--glass-border);
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.shop-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-top: 4px;
+    color: #94a3b8;
+}
+
+.price-tag {
+    font-size: 18px;
+    font-weight: 700;
+    color: #fff;
+}
+
+.total-card {
+    margin-top: 20px;
+    padding: 20px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.02));
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.total-title {
+    font-size: 14px;
+    color: var(--accent-green);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.total-amount {
+    font-size: 32px;
+    color: #10b981;
+    font-weight: 800;
+}
+
+/* Responsivita */
+@media(max-width: 1100px){
+    .hero, .grid {
+        grid-template-columns: 1fr;
+    }
+    .hero h1 {
+        font-size: 40px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <div class="logo">
+        ⚡ SmartNákup <span class="logo-tag">PRO AI</span>
+    </div>
+</header>
+
+<div class="container">
+
+    <div class="hero">
+        <div>
+            <div class="badge-wrapper">
+                <span class="badge-dot"></span> Algoritmus živě porovnává 5+ řetězců
+            </div>
+            <h1>Najdi nejlevnější nákup během sekund.</h1>
+            <p>
+                Inteligentní srovnávač akčních cen v českých supermarketech. Vyber si položky a AI spočítá nejvýhodnější košík za tě.
+            </p>
+            <div class="hero-stats">
+                <div class="stat-item">
+                    <h4>až 35 %</h4>
+                    <p>Průměrná úspora</p>
+                </div>
+                <div class="stat-item">
+                    <h4>10 000+</h4>
+                    <p>Denně aktualizovaných cen</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="basket-preview glass">
+            <span>🛒</span>
+        </div>
+    </div>
+
+    <div class="grid">
+        <!-- Vlevo: Katalog -->
+        <div class="glass card">
+            <div class="card-header">
+                <div class="card-title">📦 Katalog produktů</div>
+            </div>
+
+            <div class="search-wrapper">
+                <span class="search-icon">🔍</span>
+                <input
+                    type="text"
+                    id="productSearch"
+                    class="search-box"
+                    placeholder="Vyhledat např. mléko, máslo, chléb..."
+                    onkeyup="filterProducts()">
+            </div>
+
+            <div id="productsWrapper">
+                <div class="section-title">🥛 Mléčné výrobky</div>
+                <div class="products" id="milkProducts"></div>
+
+                <div class="section-title">🍓 Ovoce a zelenina</div>
+                <div class="products" id="fruitProducts"></div>
+
+                <div class="section-title">🍝 Těstoviny a přílohy</div>
+                <div class="products" id="pastaProducts"></div>
+
+                <div class="section-title">🥤 Nápoje</div>
+                <div class="products" id="drinkProducts"></div>
+            </div>
+        </div>
+
+        <!-- Vpravo: Košík a Výsledky -->
+        <div>
+            <div class="glass card" style="margin-bottom: 24px;">
+                <div class="card-header">
+                    <div class="card-title">🛒 Nákupní seznam</div>
+                    <span id="itemCount" style="font-size: 12px; background: rgba(255,255,255,0.1); padding: 4px 10px; border-radius: 20px;">0 položek</span>
+                </div>
+
+                <ul id="shoppingItems" class="shopping-list"></ul>
+
+                <button
+                    id="searchBtn"
+                    class="search-btn"
+                    onclick="findCheapest()"
+                    disabled>
+                    <span>Porovnat nejlevnější ceny</span>
+                    <span>→</span>
+                </button>
+            </div>
+
+            <div class="glass card">
+                <div class="card-header">
+                    <div class="card-title">🏆 Nejvýhodnější nabídka</div>
+                </div>
+
+                <div id="results" class="results-wrapper">
+                    <div class="empty-state">
+                        Přidejte položky do seznamu a klikněte na tlačítko porovnání.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+// Databáze produktů: [Klíč pro backend, Název k zobrazení]
+const CATEGORIES = {
+    milkProducts: [
+        ["mleko", "🥛 Mléko"],
+        ["maslo", "🧈 Máslo"],
+        ["eidam 30", "🧀 Eidam 30 %"],
+        ["eidam 45", "🧀 Eidam 45 %"],
+        ["gouda", "🧀 Gouda"],
+        ["hermelin", "🧀 Hermelín"],
+        ["mozzarella", "🧀 Mozzarella"],
+        ["jogurt bily", "🥛 Jogurt bílý"],
+        ["jogurt jahodovy", "🍓 Jogurt jahodový"],
+        ["smetana", "🥛 Smetana"]
+    ],
+    fruitProducts: [
+        ["jahody", "🍓 Jahody"],
+        ["banany", "🍌 Banány"],
+        ["jablka", "🍎 Jablka"],
+        ["hrusky", "🍐 Hrušky"],
+        ["pomerance", "🍊 Pomeranče"],
+        ["citrony", "🍋 Citrony"],
+        ["brambory", "🥔 Brambory"],
+        ["mrkev", "🥕 Mrkev"],
+        ["cibule", "🧅 Cibule"],
+        ["rajcata", "🍅 Rajčata"]
+    ],
+    pastaProducts: [
+        ["penne", "🍝 Penne"],
+        ["spagety", "🍝 Špagety"],
+        ["fusilli", "🍝 Fusilli"],
+        ["tagliatelle", "🍝 Tagliatelle"],
+        ["lasagne", "🍝 Lasagne"]
+    ],
+    drinkProducts: [
+        ["coca cola", "🥤 Coca-Cola"],
+        ["pepsi", "🥤 Pepsi"],
+        ["mattoni", "💧 Mattoni"],
+        ["rajec", "💧 Rajec"],
+        ["kava", "☕ Káva"]
+    ]
+};
+
+// Ukládáme si objekty { key, name } pro čistší manipulaci
+let selectedProducts = [];
+
+// Inicializace produktových tlačítek
+function createProducts() {
+    Object.keys(CATEGORIES).forEach(categoryId => {
+        const container = document.getElementById(categoryId);
+        if(!container) return;
+
+        container.innerHTML = CATEGORIES[categoryId]
+            .map(p => `
+                <button
+                    class="product-btn"
+                    data-key="${p[0]}"
+                    onclick="toggleProduct('${p[0]}', '${p[1]}')">
+                    <span>${p[1]}</span>
+                    <span style="opacity: 0.4;">+</span>
+                </button>
+            `)
+            .join("");
+    });
+}
+
+function toggleProduct(key, name) {
+    const index = selectedProducts.findIndex(item => item.key === key);
+    
+    if (index === -1) {
+        selectedProducts.push({ key, name });
+    } else {
+        selectedProducts.splice(index, 1);
+    }
+
+    renderList();
+    updateButtonsState();
+}
+
+function removeProduct(index) {
+    selectedProducts.splice(index, 1);
+    renderList();
+    updateButtonsState();
+}
+
+function updateButtonsState() {
+    document.querySelectorAll(".product-btn").forEach(btn => {
+        const key = btn.getAttribute("data-key");
+        const isSelected = selectedProducts.some(p => p.key === key);
+        
+        if (isSelected) {
+            btn.classList.add("active");
+            btn.querySelector("span:last-child").innerText = "✓";
+        } else {
+            btn.classList.remove("active");
+            btn.querySelector("span:last-child").innerText = "+";
+        }
+    });
+}
+
+function renderList() {
+    const listEl = document.getElementById("shoppingItems");
+    const countEl = document.getElementById("itemCount");
+    const searchBtn = document.getElementById("searchBtn");
+
+    countEl.innerText = `${selectedProducts.length} položek`;
+    searchBtn.disabled = selectedProducts.length === 0;
+
+    if (selectedProducts.length === 0) {
+        listEl.innerHTML = `<li style="color: var(--text-muted); text-align: center; padding: 20px; font-size: 13px;">Seznam je zatím prázdný.</li>`;
+        return;
+    }
+
+    listEl.innerHTML = selectedProducts.map((p, i) => `
+        <li class="shopping-item">
+            <span style="font-weight: 600;">${p.name}</span>
+            <button class="remove-btn" onclick="removeProduct(${i})" title="Odebrat">✕</button>
+        </li>
+    `).join("");
+}
+
+function filterProducts() {
+    const value = document.getElementById("productSearch").value.toLowerCase();
+    
+    document.querySelectorAll(".product-btn").forEach(btn => {
+        const text = btn.innerText.toLowerCase();
+        btn.style.display = text.includes(value) ? "flex" : "none";
+    });
+}
+
+async function findCheapest() {
+    const results = document.getElementById("results");
+    const searchBtn = document.getElementById("searchBtn");
+
+    try {
+        searchBtn.disabled = true;
+        searchBtn.innerHTML = `<span>Skenuji supermarkety...</span>`;
+        
+        results.innerHTML = `
+            <div style="text-align: center; padding: 30px;">
+                <div style="font-size: 24px; margin-bottom: 8px;">⏳</div>
+                <div style="color: var(--text-muted); font-size: 14px;">Algoritmus porovnává ceny v obchodech...</div>
+            </div>
+        `;
+
+        // Posíláme pouze pole Klíčů (stejně jako tvůj původní kód)
+        const itemsToSend = selectedProducts.map(p => p.key);
+
+        const response = await fetch("http://127.0.0.1:5001/api/search", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ items: itemsToSend })
+        });
+
+        if (!response.ok) throw new Error("Chyba při komunikaci se serverem");
+
+        const data = await response.json();
+
+        let html = "";
+        data.items.forEach(item => {
+            html += `
+                <div class="result-card">
+                    <div>
+                        <strong style="font-size: 15px;">${item.product}</strong><br>
+                        <span class="shop-badge">🏪 ${item.shop}</span>
+                    </div>
+                    <div class="price-tag">${item.price} Kč</div>
+                </div>
+            `;
+        });
+
+        html += `
+            <div class="total-card">
+                <div>
+                    <div class="total-title">Celková cena nákupu</div>
+                    <div style="font-size: 12px; color: #64748b;">Nejvýhodnější kombinace</div>
+                </div>
+                <div class="total-amount">${data.total} Kč</div>
+            </div>
+        `;
+
+        results.innerHTML = html;
+
+    } catch (err) {
+        results.innerHTML = `
+            <div class="result-card" style="border-color: rgba(239, 68, 68, 0.3); background: rgba(239, 68, 68, 0.05);">
+                <span style="color: #ef4444; font-weight: 600;">⚠️ Nelze se připojit k backendu (port 5001). Běží vám app.py?</span>
+            </div>
+        `;
+    } finally {
+        searchBtn.disabled = false;
+        searchBtn.innerHTML = `<span>Porovnat nejlevnější ceny</span> <span>→</span>`;
+    }
+}
+
+// Spuštění při načtení
+createProducts();
+renderList();
+</script>
+
+</body>
+</html>

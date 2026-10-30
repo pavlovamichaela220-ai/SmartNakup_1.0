@@ -1,0 +1,20 @@
+body{
+    background:#f8fafc;
+    color:#0f172a;
+    font-family:Arial,sans-serif;
+}
+
+body.dark{
+    background:#0f172a;
+    color:white;
+}
+
+.theme-btn{
+    position:fixed;
+    top:20px;
+    right:20px;
+    padding:10px 16px;
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+}
